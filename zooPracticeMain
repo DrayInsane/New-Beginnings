@@ -1,0 +1,220 @@
+package zooPractice;
+
+//Included libraries
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Scanner;
+
+
+//Define a class zooPracticeMain
+	public class zooPracticeMain
+
+{
+    //Define main
+		public static void main(String[] args) throws IOException
+     {
+          //Call method. Used to start program/ Restart program.
+          login();
+     }
+
+     //Define the method used for login
+     	public static void login()
+
+     {
+      //Defined variable for password to be hashed and used later.
+          String hashPass = "";            
+
+       //Declare variables that won't be used till further down.
+          int logOut = 0,attempts=3;
+
+       //Define reader to capture user input
+          BufferedReader br1 = new BufferedReader(new InputStreamReader(System.in));     
+
+       //Display message start up login screen.
+          System.out.println("\n Zoo Login");
+
+       //Try block for exceptions and such
+          try
+          {
+      // this is a do-while statement i picked up through research on oracles website oracle.com/javase/tutorial/java/nutsandbolts/while.html
+              do
+              {
+        // Attempts defined earlier research using stackoverflow.com/ efficient-methods-for-incrementing-and-decrementing-in-the-same-loop
+                   attempts--;
+                   
+       //Ask for user name
+                   System.out.print("Enter Username: ");
+          //Store value for user name
+                   String userName = br1.readLine();                   
+
+               //Ask for password unhashed
+                   System.out.print("Enter Password: ");
+
+               //Password storing and beginning of MD5 hash
+                   String original = br1.readLine();
+
+               //Declare value for MD5 hash algorithm
+                   MessageDigest md = MessageDigest.getInstance("md5");
+
+               //Tell to update password with MD5 value
+                   md.update(original.getBytes());
+
+               //Starts Call method
+                   byte[] digest = md.digest();
+
+              //creating sb to change password to hashed password
+                   StringBuffer sb = new StringBuffer();
+                   for (byte b : digest)
+                   {
+              //Sets the actual Hash for the password
+                   sb.append(String.format("%02x", b & 0xff));
+                   }
+             //Generate password hashed
+                   hashPass = sb.toString();
+
+            //Declare variable to use later
+                   String readFile;
+                   
+            //Prints blank line For cleanliness of code and sanity of developer
+                   System.out.println();
+                   
+        //For graded error checking of hashed passwords (demonstration purposes)
+                   System.out.println("password: " + original);
+                   System.out.println("digested: " + hashPass);
+                   System.out.println();
+                   
+            //Instance to be able to read userCreds.txt file and get info.
+                   BufferedReader userCreds = new BufferedReader(new FileReader("userCreds.txt"));
+          
+		    //Loop until end of file
+                   while ((readFile = userCreds.readLine()) != null)
+                   {                 
+            //Split each line of file so that each can be read separately and checked. (StackOverflow, geeksforgeeks.org/ Zybooks module 3)
+                // .split("\t") is used so because the ("\t") is the escape sequence. (regex) 
+                	   String[] array = readFile.split("\t");
+
+            // If user name matches user name column in userCreds.txt
+                        if (array[0].equals(userName))
+                        {
+           //If hashPass matches hashed password column in userCreds.txt
+                             if (array[1].equals(hashPass))
+                             {                           
+             //Store file name for other .txt files (GitHub)                              
+                                  String x = array[3];
+
+              //Define 2nd file reader to be able to read user profiles.
+                                  BufferedReader br2 = new BufferedReader(new InputStreamReader(System.in)); 
+
+                   //Declare variable to be used later after reading .txt files
+                                  String strLine1 = "";
+
+                  //Read files. used x to get name of file then added .txt to actually open it.
+                                  br2 = new BufferedReader( new FileReader(x+".txt"));
+    
+              //Loop until file ends
+                                  while( (strLine1 = br2.readLine()) != null)
+
+                                  {
+                //Display contents of read file.
+                                  System.out.println(strLine1);
+                                  }
+               //Assign value to variable needed to log out. 
+                                  logOut = 1;
+
+                     //Apply Breaks to while loop
+                                  break;
+                             }
+                        }
+                   }
+
+                //Starts method used When user fails to log in 
+                   		if(attempts==0)
+                   {
+               //Display message so user knows that they cannot make any more attempts.
+                        System.out.println("System lock");
+
+              //Display message to reinforce lock out and provide assistance.
+                        System.out.println("Exit and call for System Admin.");
+         
+              //Exit program because of too many failed attempts.
+                        System.exit(1);
+                   }
+                   //If logging out is available is 1
+                   			if (logOut == 1)
+
+                   {
+                        //Call method
+                   				userLogOut();
+
+              //Apply Breaks 
+                     break;
+                   }
+           //In case user inputs wrong password.
+                   			else
+
+                   {
+          //Display failed log in attempt.
+                	   System.out.println("Invalid Username or Password.");
+
+           //Tell user to retry inputting correct info.
+                        System.out.println(" Try again ");                   
+
+          //Display warning message to user after failed log in attempt. 
+                        System.out.println(attempts+" more attemptes left before system lock.\n");
+                          
+                        
+                   }
+                   		
+              }
+        //Loop while user still can try to log in. (Couldn't figure this out for a few days.)
+              while(attempts>0);
+          }
+       //Store exceptions and error log
+          catch (NoSuchAlgorithmException e1)
+          {
+      //Trace method to record exceptions (referenced from geeksforgeeks.org)
+              e1.printStackTrace();
+          }
+      //Define catch block to read errors and such.
+          catch (IOException e1)
+          {
+     //Trace method to record exceptions (referenced from geeksforgeeks.org)
+              e1.printStackTrace();
+          }
+     }
+    //Define a method for logging out.
+     	public static void userLogOut()
+     	{
+      //Declare variable that will start log out attempt.  
+          String logOut;
+
+      //Define scanner variable
+          Scanner sc1= new Scanner(System.in);     
+
+      //Display message to offer user logout 
+          System.out.println();
+          System.out.println("Press 0 then the [ENTER] key for log out\n");
+
+      //Do loop
+          do
+          {
+     //Store user input to check for log out attempt.
+              logOut = sc1.nextLine();
+          }
+     //Loop to actually log out if user presses 0 after logging in.
+          while(!logOut.equals("0"));
+
+      //If value is 0 log the user out.
+          if(logOut.equals("0"))
+          {
+      //Call method for looping back to beginning.
+              login();
+          }
+
+     }
+
+}
